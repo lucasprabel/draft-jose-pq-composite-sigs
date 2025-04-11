@@ -9,7 +9,7 @@ docname: draft-prabel-jose-pq-composite-sigs-01
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
-consensus:
+consensus: true
 v: 3
 area: Security
 workgroup: JOSE
@@ -249,8 +249,8 @@ The following table defines a list of algorithms associated with specific PQ/T c
 | Name | First Algorithm | Second Algorithm | Pre-Hash | Description 
 | ----------- | ----------- |  ----------- | ----------- | ----------- |
 | ML-DSA44-ES256 | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | id-sha256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA-256 |
-| ML-DSA65-ES512  | ML-DSA-65 | ecdsa-with-SHA512 with secp256r1 | id-sha512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-512 |
-| ML-DSA87-ES512  | ML-DSA-87 | ecdsa-with-SHA512 with secp384r1 | id-sha512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-512 |
+| ML-DSA65-ES256  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | id-sha256 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-256 |
+| ML-DSA87-ES384  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | id-sha384 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-384 |
 {: #tab-jose-algs title="JOSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-jose}}.
@@ -260,11 +260,11 @@ Examples can be found in {{appdx-jose}}.
 The following table defines a list of algorithms associated with specific PQ/T combinations to be registered in {{IANA.COSE}}.
 
 
-| Name | COSE Value | First Algorithm | Second Algorithm | Description
+| Name | COSE Value | First Algorithm | Second Algorithm | Pre-Hash | Description
 | ----------- | ----------- | ----------- |  ----------- | ----------- |
 | ML-DSA44-ES256         | TBD (request assignment -51) | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | id-sha256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA-256 |
-| ML-DSA65-ES512            | TBD (request assignment -52)  | ML-DSA-65 | ecdsa-with-SHA512 with secp256r1 | id-sha512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-512 |
-| ML-DSA87-ES512            | TBD (request assignment -53)  | ML-DSA-87 | ecdsa-with-SHA512 with secp384r1 | id-sha512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-512 |
+| ML-DSA65-ES256            | TBD (request assignment -52)  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | id-sha256 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-256 |
+| ML-DSA87-ES384            | TBD (request assignment -53)  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | id-sha384 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-384 |
 {: #tab-cose-algs title="COSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-cose}}.
@@ -356,9 +356,9 @@ They are represented following the registration template provided in {{RFC7518}}
 * Specification Document(s): n/a
 * Algorithm Analysis Documents(s): TBD
 
-### ML-DSA-65-ES512
+### ML-DSA-65-ES256
 
-* Algorithm Name: ML-DSA-65-ES512
+* Algorithm Name: ML-DSA-65-ES256
 * Algorithm Description: Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-256
 * Algorithm Usage Location(s): alg
 * JOSE Implementation Requirements: Optional
@@ -366,9 +366,9 @@ They are represented following the registration template provided in {{RFC7518}}
 * Specification Document(s): n/a
 * Algorithm Analysis Documents(s): TBD
 
-### ML-DSA-87-ES512
+### ML-DSA-87-ES384
 
-* Algorithm Name: ML-DSA-87-ES512
+* Algorithm Name: ML-DSA-87-ES384
 * Algorithm Description: Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-384
 * Algorithm Usage Location(s): alg
 * JOSE Implementation Requirements: Optional
@@ -439,9 +439,9 @@ They are represented following the registration template provided in {{RFC9053}}
 * Reference: n/a
 * Recommended: Yes
 
-### ML-DSA-65-ES512
+### ML-DSA-65-ES256
 
-* Name: ML-DSA-65-ES512
+* Name: ML-DSA-65-ES256
 * Value: TBD (request assignment -52)
 * Description: Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA-256
 * Capabilities: [kty]
@@ -449,9 +449,9 @@ They are represented following the registration template provided in {{RFC9053}}
 * Reference: n/a
 * Recommended: Yes
 
-### ML-DSA-87-ES512
+### ML-DSA-87-ES384
 
-* Name: ML-DSA-87-ES512
+* Name: ML-DSA-87-ES384
 * Value: TBD (request assignment -53)
 * Description: Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-384
 * Capabilities: [kty]
