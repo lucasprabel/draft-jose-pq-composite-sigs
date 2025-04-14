@@ -48,6 +48,8 @@ normative:
  RFC7515:
  RFC7517:
  RFC7518:
+ RFC7638:
+ RFC9679:
  IANA.JOSE:
    title: "JSON Object Signing and Encryption (JOSE)"
    date: ~
@@ -329,6 +331,28 @@ This document requests IANA to register the entries described in this section an
 | TBD (request assignment 8)  | seed | -7 | bstr | Seed used to derive the private key |
 {: #tab-cose-key-params title="COSE AKP-EC2 Key Parameters"}
 
+
+# Key Thumbprints
+
+The JWK Thumbprint is computed following the process described in {{RFC7638}}, using the following required parameters, listed in their lexicographic order:
+- "alg"
+- "crv"
+- "kty"
+- "pub"
+- "x"
+- "y"
+
+The COSE Key Thumbprint is computed following the process described in {{RFC9679}} using the following required parameters:
+- "kty" (label: 1, data type: int, value: 8)
+- "alg" (label: 3, data type: int)
+- "crv" (label: -1, data type: int)
+- "x" (label: -2, value: bstr)
+- "y" (label: -3, value: bstr)
+- "pub" (label: -5, value: bstr)
+
+
+Examples in {{appdx-jose}} and {{appdx-jose}} feature AKP-EC and AKP-EC2 thumbprints, used as the kid values.
+
 # Security Considerations
 
 The security considerations of {{RFC7515}}, {{RFC7517}}, {{RFC9053}} and {{FIPS.204}} also apply to this document.
@@ -475,7 +499,7 @@ They are represented following the registration template provided in {{RFC9053}}
 
 * Key Type: TBD
 * Name: pub
-* Label: -1
+* Label: -5
 * CBOR Type: bstr
 * Description: Public key
 * Reference: n/a
@@ -484,7 +508,7 @@ They are represented following the registration template provided in {{RFC9053}}
 
 * Key Type: TBD
 * Name: priv
-* Label: -2
+* Label: -6
 * CBOR Type: bstr
 * Description: Private key
 * Reference: n/a
@@ -493,7 +517,7 @@ They are represented following the registration template provided in {{RFC9053}}
 
 * Key Type: TBD
 * Name: seed
-* Label: -3
+* Label: -7
 * CBOR Type: bstr
 * Description: Seed used to derive the private key
 * Reference: n/a
