@@ -335,20 +335,22 @@ This document requests IANA to register the entries described in this section an
 # Key Thumbprints
 
 The JWK Thumbprint is computed following the process described in {{RFC7638}}, using the following required parameters, listed in their lexicographic order:
-- "alg"
-- "crv"
-- "kty"
-- "pub"
-- "x"
-- "y"
+
+* "alg"
+* "crv"
+* "kty"
+* "pub"
+* "x"
+* "y"
 
 The COSE Key Thumbprint is computed following the process described in {{RFC9679}} using the following required parameters:
-- "kty" (label: 1, data type: int, value: 8)
-- "alg" (label: 3, data type: int)
-- "crv" (label: -1, data type: int)
-- "x" (label: -2, value: bstr)
-- "y" (label: -3, value: bstr)
-- "pub" (label: -5, value: bstr)
+
+* "kty" (label: 1, data type: int, value: 8)
+* "alg" (label: 3, data type: int)
+* "crv" (label: -1, data type: int)
+* "x" (label: -2, value: bstr)
+* "y" (label: -3, value: bstr)
+* "pub" (label: -5, value: bstr)
 
 
 Examples in {{appdx-jose}} and {{appdx-jose}} feature AKP-EC and AKP-EC2 thumbprints, used as the kid values.
