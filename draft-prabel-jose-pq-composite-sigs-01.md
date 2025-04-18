@@ -295,7 +295,7 @@ This document requests the registration of the following key type in {{IANA.COSE
 
 | Name | kty | Description |
 | ----------- | ----------- | ----------- |
-| AKP-EC2     | TBD | COSE key type for composite algorithm with ECDSA as the traditional component. |
+| AKP-EC2     | TBD (requested assignment 8) | COSE key type for composite algorithm with ECDSA as the traditional component. |
 {: #tab-cose-kty title="COSE key type for composite algorithm"}
 
 Examples can be found in {{appdx-cose}}.
@@ -412,7 +412,7 @@ IANA is requested to add the following entries to the JSON Web Key Types Registr
 * Key Type Description: Composite signature algorithm with ECDSA as the traditional component
 * JOSE Implementation Requirements: Optional
 * Change Controller: IETF
-* Specification Document(s): n/a
+* Specification Document(s): RFC xxx
 
 
 ## JOSE Web Key Parameters
@@ -426,7 +426,7 @@ IANA is requested to add the following entries to the JSON Web Key Parameters Re
 * Used with "kty" Value(s): AKP-EC
 * Parameter Information Class: Public
 * Change Controller: IETF
-* Specification Document(s): n/a
+* Specification Document(s): RFC xxx
 
 ### Private Key
 
@@ -435,7 +435,7 @@ IANA is requested to add the following entries to the JSON Web Key Parameters Re
 * Used with "kty" Value(s): AKP-EC
 * Parameter Information Class: Private
 * Change Controller: IETF
-* Specification Document(s): n/a
+* Specification Document(s): RFC xxx
 
 ### Seed
 
@@ -444,7 +444,7 @@ IANA is requested to add the following entries to the JSON Web Key Parameters Re
 * Used with "kty" Value(s): AKP-EC
 * Parameter Information Class: Private
 * Change Controller: IETF
-* Specification Document(s): n/a
+* Specification Document(s): RFC xxx
 
 ### Others
 
