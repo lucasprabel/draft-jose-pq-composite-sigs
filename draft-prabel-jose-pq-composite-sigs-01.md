@@ -191,7 +191,7 @@ For JOSE (resp. COSE), M' is base64url-encoded (resp. binary encoded) before sig
 
 ## Composite Verify
 
-The Verify algorithm MUST validates a signature only if all component signatures were successfully validated.
+The Verify algorithm MUST validate a signature only if all component signatures were successfully validated.
 
 The verification process of a signature sig is as follows:
 
