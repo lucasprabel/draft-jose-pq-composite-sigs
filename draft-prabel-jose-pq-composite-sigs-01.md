@@ -5,7 +5,7 @@ title: "PQ/T Hybrid Composite Signatures for JOSE and COSE"
 abbrev: "JOSE/COSE Composite Signatures"
 category: std
 
-docname: draft-prabel-jose-pq-composite-sigs-01
+docname: draft-prabel-jose-pq-composite-sigs-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -70,7 +70,6 @@ informative:
  I-D.draft-ietf-pquip-pqt-hybrid-terminology: HYB-TERMINO
  I-D.draft-ietf-pquip-hybrid-signature-spectrums: HYB-SIG-SPECTRUMS
  I-D.draft-ietf-cose-dilithium: COSE-MLDSA
- I-D.draft-connolly-cfrg-hybrid-sig-considerations: HYB-SEC-CONSIDERATIONS
 
  FIPS.204:
     title: "Module-Lattice-Based Digital Signature Standard"
