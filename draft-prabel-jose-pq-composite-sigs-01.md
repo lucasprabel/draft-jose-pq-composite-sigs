@@ -5,7 +5,7 @@ title: "PQ/T Hybrid Composite Signatures for JOSE and COSE"
 abbrev: "JOSE/COSE Composite Signatures"
 category: std
 
-docname: draft-prabel-jose-pq-composite-sigs-latest
+docname: draft-prabel-jose-pq-composite-sigs-01
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -186,7 +186,7 @@ Composite Signature <- (r, sig_1, sig_2)
 
 The prefix "Prefix" string is defined as in {{-COMPOSITE-LAMPS}} as the byte encoding of the string "CompositeAlgorithmSignatures2025", which in hex is 436F6D706F73697465416C676F726974686D5369676E61747572657332303235. It can be used by a traditional verifier to detect if the composite signature has been stripped apart.
 
-The domain separator "Domain" is defined as the octets of the ASCII representation of the Composite Signature "alg" (algorithm) Header Parameter value.
+The domain separator "Domain" is defined as the octets of the ASCII representation of the Composite Signature "alg" (algorithm) Header Parameter value. The specific values can be found in {{tab-sig-alg-oids}}.
 
 Similarly to {{-COSE-MLDSA}} which indicates that the ctx parameter MUST be the empty string, the application context passed in to the composite signature algorithm MUST be the empty string. To align with the structure of the {{-COMPOSITE-LAMPS}} combiner, the byte 0x00 is appended in the message M' after the domain separator to indicate the context has length 0. However, a second non-empty context, defined as the domain separator, is passed down into the underlying pure ML-DSA component algorithm, to bind the Composite-ML-DSA algorithm used.
 
@@ -256,9 +256,9 @@ The following table defines a list of algorithms associated with specific PQ/T c
 
 | Name | First Algorithm | Second Algorithm | Pre-Hash | Description 
 | ----------- | ----------- |  ----------- | ----------- | ----------- |
-| ML-DSA44-ES256 | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
-| ML-DSA65-ES256  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
-| ML-DSA87-ES384  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
+| ML-DSA-44-ES256 | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
+| ML-DSA-65-ES256  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
+| ML-DSA-87-ES384  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
 {: #tab-jose-algs title="JOSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-jose}}.
@@ -270,12 +270,23 @@ The following table defines a list of algorithms associated with specific PQ/T c
 
 | Name | COSE Value | First Algorithm | Second Algorithm | Pre-Hash | Description
 | ----------- | ----------- | ----------- |  ----------- | ----------- |
-| ML-DSA44-ES256         | TBD (request assignment -51) | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
-| ML-DSA65-ES256            | TBD (request assignment -52)  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
-| ML-DSA87-ES384            | TBD (request assignment -53)  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
+| ML-DSA-44-ES256         | TBD (request assignment -51) | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
+| ML-DSA-65-ES256            | TBD (request assignment -52)  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
+| ML-DSA-87-ES384            | TBD (request assignment -53)  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
 {: #tab-cose-algs title="COSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-cose}}.
+
+## Composite Domain Separators for JOSE and COSE
+
+The JOSE and COSE composite domain separators values are listed in {{tab-sig-alg-oids}}.
+
+| "alg" Header Parameter | Domain Separator (in Hex encoding) |
+| ----------- | ----------- |  ----------- | ----------- | ----------- |
+| ML-DSA-44-ES256 | 4d4c2d4453412d34342d4553323536  |
+| ML-DSA-65-ES256  | 4d4c2d4453412d36352d4553323536 |
+| ML-DSA-87-ES384  | 4d4c2d4453412d38372d4553333834 |
+{: #tab-sig-alg-oids title="JOSE/COSE Composite Domain Separators"}
 
 # Composite Signature Key Types {#sec-composite-sig-key-types}
 
