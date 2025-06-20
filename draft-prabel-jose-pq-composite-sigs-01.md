@@ -5,7 +5,7 @@ title: "PQ/T Hybrid Composite Signatures for JOSE and COSE"
 abbrev: "JOSE/COSE Composite Signatures"
 category: std
 
-docname: draft-prabel-jose-pq-composite-sigs-01
+docname: draft-prabel-jose-pq-composite-sigs-02
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -186,7 +186,7 @@ Composite Signature <- (r, sig_1, sig_2)
 
 The prefix "Prefix" string is defined as in {{-COMPOSITE-LAMPS}} as the byte encoding of the string "CompositeAlgorithmSignatures2025", which in hex is 436F6D706F73697465416C676F726974686D5369676E61747572657332303235. It can be used by a traditional verifier to detect if the composite signature has been stripped apart.
 
-The domain separator "Domain" is defined as the octets of the ASCII representation of the Composite Signature "alg" (algorithm) Header Parameter value. The specific values can be found in {{tab-sig-alg-oids}}.
+The domain separator "Domain" is defined in the same ways as {{-COMPOSITE-LAMPS}} as the DER encoding of the OID of the specific composite algorithm. The specific values can be found in {{tab-sig-alg-oids}}.
 
 Similarly to {{-COSE-MLDSA}} which indicates that the ctx parameter MUST be the empty string, the application context passed in to the composite signature algorithm MUST be the empty string. To align with the structure of the {{-COMPOSITE-LAMPS}} combiner, the byte 0x00 is appended in the message M' after the domain separator to indicate the context has length 0. However, a second non-empty context, defined as the domain separator, is passed down into the underlying pure ML-DSA component algorithm, to bind the Composite-ML-DSA algorithm used.
 
@@ -283,9 +283,9 @@ The JOSE and COSE composite domain separators values are listed in {{tab-sig-alg
 
 | "alg" Header Parameter | Domain Separator (in Hex encoding) |
 | ----------- | ----------- |  ----------- | ----------- | ----------- |
-| ML-DSA-44-ES256 | 4d4c2d4453412d34342d4553323536  |
-| ML-DSA-65-ES256  | 4d4c2d4453412d36352d4553323536 |
-| ML-DSA-87-ES384  | 4d4c2d4453412d38372d4553333834 |
+| ML-DSA-44-ES256 | 060B6086480186FA6B50090103  |
+| ML-DSA-65-ES256  | 060B6086480186FA6B50090108 |
+| ML-DSA-87-ES384  | 060B6086480186FA6B5009010C |
 {: #tab-sig-alg-oids title="JOSE/COSE Composite Domain Separators"}
 
 # Composite Signature Key Types {#sec-composite-sig-key-types}
