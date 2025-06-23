@@ -130,7 +130,7 @@ As a reminder, the AKP type is used to express public and private keys for use w
 
 This document makes use of the serialization routines defined in {{-COMPOSITE-LAMPS}} to obtain the byte string encodings of the composite public and private keys.
 
-The process to compute JWK Thumbprint and COSE Key Thumbprint as described in {{RFC7638}} is detailed in {{-COSE-MLDSA}}.
+The process to compute JWK Thumbprint and COSE Key Thumbprint as described in {{RFC7638}} and {{RFC9679}} is detailed in {{-COSE-MLDSA}}.
 
 # Composite Signature Algorithm
 
