@@ -121,6 +121,17 @@ This section recalls some of this terminology, but also adds other definitions u
 "Component Algorithm":
          Each cryptographic algorithm that forms part of a cryptographic scheme.
 
+
+# Algorithm Key Pair (AKP) Type
+
+This document makes use of the Algorithm Key Pair (AKP) type which is defined in {{-COSE-MLDSA}}.
+
+As a reminder, the AKP type is used to express public and private keys for use with algorithms. The parameters for public and private keys contain byte strings.
+
+This document makes use of the serialization routines defined in {{-COMPOSITE-LAMPS}} to obtain the byte string encodings of the composite public and private keys.
+
+The process to compute JWK Thumbprint and COSE Key Thumbprint as described in {{RFC7638}} is detailed in {{-COSE-MLDSA}}.
+
 # Composite Signature Algorithm
 
 The structures of the composite keys and composite signatures follow an approach similar to {{-COMPOSITE-LAMPS}}. The composite design is chosen so that composite keys and signatures can be used as a drop-in replacement in JOSE / COSE object formats. This section gives some details about their construction.
@@ -144,13 +155,15 @@ For the composite algorithms described in this document (ML-DSA with ECDSA), the
 (pk_1, sk_1) <- ML-DSA.KeyGen()
 (pk_2 = (x,y), sk_2 = d) <- ECDSA.KeyGen()
 
-Composite Public Key <- pk_1 || pk_2 = pk_1 || x || y
-Composite Private Key <- sk_1 || sk_2 = sk_1 || d
+Composite Public Key <- SerializePublicKey(pk_1, pk_2)
+Composite Private Key <- SerializePrivateKey(sk_1, sk_2)
 ~~~
 
-Point compression for ECDSA is not performed for the "AKP-EC" JSON Web Key Type but can be performed for the "AKP-EC2" COSE Key Type. Both key types are defined in {{sec-composite-sig-key-types}}.
+This document makes use of the serialization routines from {{-COMPOSITE-LAMPS}} to obtain the byte string encodings of the composite public and private keys. These encodings are then directly use with the AKP Key Type. For more information, see the `SerializePublicKey`, `DeserializePublicKey`, `SerializePrivateKey` and `DeserializePrivateKey` algorithms from {{-COMPOSITE-LAMPS}}.
 
-In this document, unlike {{-COSE-MLDSA}} but as in {{-COSE-MLDSA}}, the ML-DSA private key MUST be a 32-bytes seed.
+Point compression for the ECDSA component is not performed for the AKP JSON Web Key Type but can be performed for the AKP COSE Key Type.
+
+In this document, as in {{-COSE-MLDSA}}, the ML-DSA private key MUST be a 32-bytes seed.
 
 
 ## Composite Sign
@@ -181,12 +194,14 @@ M' <- Encode(M')
 sig_1 <- ML-DSA.Sign(sk_1, M', ctx=Domain)
 sig_2 <- ECDSA.Sign(sk_2, M')
 
-Composite Signature <- (r, sig_1, sig_2)
+Composite Signature <- SerializeSignatureValue(r, sig_1, sig_2)
 ~~~
+
+The serialization routines from {{-COMPOSITE-LAMPS}} are again used to obtain the byte string encoding of the composite signature. The `SerializeSignatureValue` routine simply concatenates the randomizer r, the fixed-length ML-DSA signature value and the signature value from the traditional algorithm. For more information, see the `SerializeSignatureValue` and `DeserializeSignatureValue` algorithms from {{-COMPOSITE-LAMPS}}.
 
 The prefix "Prefix" string is defined as in {{-COMPOSITE-LAMPS}} as the byte encoding of the string "CompositeAlgorithmSignatures2025", which in hex is 436F6D706F73697465416C676F726974686D5369676E61747572657332303235. It can be used by a traditional verifier to detect if the composite signature has been stripped apart.
 
-The domain separator "Domain" is defined in the same ways as {{-COMPOSITE-LAMPS}} as the DER encoding of the OID of the specific composite algorithm. The specific values can be found in {{tab-sig-alg-oids}}.
+The domain separator "Domain" is defined in the same way as {{-COMPOSITE-LAMPS}} as the DER encoding of the OID of the specific composite algorithm. The specific values can be found in {{tab-sig-alg-oids}}.
 
 Similarly to {{-COSE-MLDSA}} which indicates that the ctx parameter MUST be the empty string, the application context passed in to the composite signature algorithm MUST be the empty string. To align with the structure of the {{-COMPOSITE-LAMPS}} combiner, the byte 0x00 is appended in the message M' after the domain separator to indicate the context has length 0. However, a second non-empty context, defined as the domain separator, is passed down into the underlying pure ML-DSA component algorithm, to bind the Composite-ML-DSA algorithm used.
 
@@ -207,8 +222,8 @@ The verification process of a signature sig is as follows:
 * verify each component signature.
 
 ~~~
-(pk_1, pk_2) <- pk
-(r, sig_1, sig_2) <- sig
+(pk_1, pk_2) <- DeserializePublicKey(pk)
+(r, sig_1, sig_2) <- DeserializeSignatureValue(sig)
 
 M' <- Prefix || Domain || 0x00 || r || PH(r || M)
 M' <- Encode(M')
@@ -220,6 +235,8 @@ if not ECDSA.Verify(pk_2, M')
 if all succeeded, then
     output "Valid signature"
 ~~~
+
+The `DeserializePublicKey` and `DeserializeSignatureValue` serialization routines from {{-COMPOSITE-LAMPS}} are used to get the component public keys, the randomizer r, and the component signatures. For more information, see the `DeserializePublicKey` and `DeserializeSignatureValue` algorithms from {{-COMPOSITE-LAMPS}}.
 
 ## Encoding Rules
 
@@ -246,9 +263,9 @@ Note that the seed is always 32 bytes, and that  ML-DSA.KeyGen_internal from {{F
 
 The ML-DSA signature scheme supports three possible parameter sets, each of which corresponding to a specific security strength. See {{FIPS.204}} for more considerations on that matter.
 
-The traditional signature algorithm for each combination in {{tab-jose-algs}} and {{tab-cose-algs}} was chosen to match the security level of the ML-DSA post-quantum component. More precisely, NIST security levels 1-3 are matched with 256-bit elliptic curves and NIST security levels 4-5 are matched with 384-bit elliptic curves.
+The traditional signature algorithm for each combination in {{tab-jose-algs}} and {{tab-cose-algs}} was chosen to match the security level of the ML-DSA post-quantum component.
 
-The {{FIPS.204}} specification defines both pure and pre-hash modes for ML-DSA, referred to as "ML-DSA" and "HashML-DSA" respectively. This document only specifies a single mode which is similar in construction to HashML-DSA, with the addition of a pre-hash randomizer. However, because the pre-hashing is done at the composite level, only the oure ML-DSA algorithm is used as the underlying ML-DSA primitivee.
+The {{FIPS.204}} specification defines both pure and pre-hash modes for ML-DSA, referred to as "ML-DSA" and "HashML-DSA" respectively. This document only specifies a single mode which is similar in construction to HashML-DSA, with the addition of a pre-hash randomizer. However, because the pre-hashing is done at the composite level, only the pure ML-DSA algorithm is used as the underlying ML-DSA primitive.
 
 ## JOSE algorithms
 
@@ -287,92 +304,6 @@ The JOSE and COSE composite domain separators values are listed in {{tab-sig-alg
 | ML-DSA-65-ES256  | 060B6086480186FA6B50090108 |
 | ML-DSA-87-ES384  | 060B6086480186FA6B5009010C |
 {: #tab-sig-alg-oids title="JOSE/COSE Composite Domain Separators"}
-
-# Composite Signature Key Types {#sec-composite-sig-key-types}
-
-## JOSE Key Type
-
-This document requests the registration of the following key type in {{IANA.JOSE}}, for use in the optional JWS Header parameter "jwk".
-
-"AKP" stands for "Algorithm Key Pair" and is used in this document, as in {{-COSE-MLDSA}}, to express the ML-DSA public and private keys. When this key type is used, the JSON Web Key Parameter "alg" is REQUIRED.
-
-| kty | Description |
-| ----------- | ----------- | ----------- |
-| AKP-EC | JWK key type for composite signature with ECDSA as the traditional component. |
-{: #tab-jose-kty title="JWK key type for composite algorithm"}
-
-Examples can be found in {{appdx-jose}}.
-
-
-## COSE Key type
-
-This document requests the registration of the following key type in {{IANA.COSE}}.
-
-"AKP" stands for "Algorithm Key Pair" and is used in this document, as in {{-COSE-MLDSA}}, to express the ML-DSA public and private keys. When this key type is used, the COSE Key Common Parameter "alg" is REQUIRED.
-
-| Name | kty | Description |
-| ----------- | ----------- | ----------- |
-| AKP-EC2     | TBD (requested assignment 8) | COSE key type for composite algorithm with ECDSA as the traditional component. |
-{: #tab-cose-kty title="COSE key type for composite algorithm"}
-
-Examples can be found in {{appdx-cose}}.
-
-# Composite Signature Web Key and Key Type Parameters {#sec-composite-params}
-
-## JSON Web Key Parameters
-
-This document requests IANA to register the entries described in this section and summarised in the following {{tab-cose-key-params}} to the JSON Web Key Parameters Registry.
-
-It also requests to add "AKP-EC" as a usable "kty" value for the parameters "crv", "x", "y" and "d".
-
-| Parameter Name | Parameter Description | Used with "kty" Value(s) | Parameter Information Class | Change Controller | Specification Document(s)
-| ----------- | ----------- |  ----------- | ----------- | ----------- |
-| pub | Public Key  | AKP-EC | Public | IETF | RFC xxx |
-| priv  | Private Key (seed) | AKP-EC | Private | IETF | RFC xxx |
-{: #tab-jose-key-params title="JSON AKP-EC Web Key Parameters"}
-
-For the hybrid algorithms registered in this document, the `priv` key parameter MUST be the seed and its size MUST be 32 bytes.
-
-
-## COSE Key Type Parameters
-
-This document requests IANA to register the entries described in this section and summarised in the following {{tab-cose-key-params}} to the COSE Key Type Parameters Registry.
-
-| Key Type | Name | Label | CBOR Type | Description 
-| ----------- | ----------- |  ----------- | ----------- | ----------- |
-| TBD (request assignment 8) | crv  | -1 | int / tstr | EC identifier |
-| TBD (request assignment 8)  | x | -2 | bstr | x-coordinate |
-| TBD (request assignment 8)  | y | -3 | bstr / bool | y-coordinate |
-| TBD (request assignment 8)  | d | -4 | bstr | EC Private key |
-| TBD (request assignment 8)  | pub | -5 | bstr | Public Key |
-| TBD (request assignment 8)  | priv | -6 | bstr | Private Key (seed) |
-{: #tab-cose-key-params title="COSE AKP-EC2 Key Parameters"}
-
-For the hybrid algorithms registered in this document, the `priv` key parameter MUST be the seed and its size MUST be 32 bytes.
-
-
-# Key Thumbprints
-
-The JWK Thumbprint is computed following the process described in {{RFC7638}}, using the following required parameters, listed in their lexicographic order:
-
-* "alg"
-* "crv"
-* "kty"
-* "pub"
-* "x"
-* "y"
-
-The COSE Key Thumbprint is computed following the process described in {{RFC9679}} using the following required parameters:
-
-* "kty" (label: 1, data type: int, value: 8)
-* "alg" (label: 3, data type: int)
-* "crv" (label: -1, data type: int)
-* "x" (label: -2, value: bstr)
-* "y" (label: -3, value: bstr)
-* "pub" (label: -5, value: bstr)
-
-
-Examples in {{appdx-jose}} and {{appdx-jose}} feature AKP-EC and AKP-EC2 thumbprints, used as the kid values.
 
 # Security Considerations
 
@@ -421,45 +352,6 @@ They are represented following the registration template provided in {{RFC7518}}
 * Specification Document(s): n/a
 * Algorithm Analysis Documents(s): TBD
 
-## JOSE Key Types
-
-IANA is requested to add the following entries to the JSON Web Key Types Registry.
-
-### AKP-EC
-
-* "kty" Parameter Value: AKP-EC
-* Key Type Description: Composite signature algorithm with ECDSA as the traditional component
-* JOSE Implementation Requirements: Optional
-* Change Controller: IETF
-* Specification Document(s): RFC xxx
-
-
-## JOSE Web Key Parameters
-
-IANA is requested to add the following entries to the JSON Web Key Parameters Registry.
-
-### Public Key
-
-* Parameter Name: pub
-* Parameter Description: Public or verification key
-* Used with "kty" Value(s): AKP-EC
-* Parameter Information Class: Public
-* Change Controller: IETF
-* Specification Document(s): RFC xxx
-
-### Private Key
-
-* Parameter Name: priv
-* Parameter Description: Private key (seed)
-* Used with "kty" Value(s): AKP-EC
-* Parameter Information Class: Private
-* Change Controller: IETF
-* Specification Document(s): RFC xxx
-
-### Others
-
-The key parameters registered in {{IANA.JOSE}} for use with the kty values "EC" should also be usable with the kty value "AKP-EC" defined in this document.
-
 ## COSE Algorithms
 
 The following values are requested to be added to the "COSE Algorithms" registry.
@@ -495,45 +387,9 @@ They are represented following the registration template provided in {{RFC9053}}
 * Reference: n/a
 * Recommended: Yes
 
-## COSE Key Types
-
-### AKP-EC2
-
-* Name: AKP-EC2
-* Value: TBD (request assignment 8)
-* Description: COSE Key Type for Composite Signature Algorithm with ECDSA as the traditional component
-* Capabilities: [kty(8)]
-* Reference: n/a
-
-## COSE Key Type Parameters
-
-### Public Key
-
-* Key Type: TBD
-* Name: pub
-* Label: -5
-* CBOR Type: bstr
-* Description: Public key
-* Reference: n/a
-
-### Private Key
-
-* Key Type: TBD
-* Name: priv
-* Label: -6
-* CBOR Type: bstr
-* Description: Private key (seed)
-* Reference: n/a
-
-### Others
-
-The key parameters registered in {{IANA.COSE}} for use with the kty value "EC2" should also be usable with the kty value "AKP-EC2" defined in this document.
-
 --- back
 
 # Examples {#appdx}
-
-Will be completed in later versions.
 
 ## JOSE {#appdx-jose}
 
@@ -610,6 +466,7 @@ Will be completed in later versions.
 
 ## COSE {#appdx-cose}
 
+Will be completed in later versions.
 
 # Acknowledgments
 
