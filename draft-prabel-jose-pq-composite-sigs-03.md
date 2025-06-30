@@ -5,7 +5,7 @@ title: "PQ/T Hybrid Composite Signatures for JOSE and COSE"
 abbrev: "JOSE/COSE Composite Signatures"
 category: std
 
-docname: draft-prabel-jose-pq-composite-sigs-02
+docname: draft-prabel-jose-pq-composite-sigs-03
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
@@ -297,6 +297,8 @@ Examples can be found in {{appdx-cose}}.
 ## Composite Domain Separators for JOSE and COSE
 
 The JOSE and COSE composite domain separators values are listed in {{tab-sig-alg-oids}}.
+
+They are defined as the DER encoding of the OID of the specific composite algorithm, in order to reuse the same values as in {{-COMPOSITE-LAMPS}}. These domain separators are currently based on the prototyping OIDs assigned on the Entrust arc, and they may change in future versions of the document.
 
 | "alg" Header Parameter | Domain Separator (in Hex encoding) |
 | ----------- | ----------- |  ----------- | ----------- | ----------- |
