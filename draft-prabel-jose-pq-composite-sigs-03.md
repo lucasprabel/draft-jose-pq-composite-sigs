@@ -42,6 +42,13 @@ author:
     organization: Entrust Limited
     abbrev: Entrust
     email: john.gray@entrust.com
+ -  ins: T. Reddy
+    fullname: Tirumaleswar Reddy
+    organization: Nokia
+    city: Bangalore
+    region: Karnataka
+    country: India
+    email: "kondtir@gmail.com"
 
 normative:
  RFC2119:
@@ -80,7 +87,7 @@ informative:
 
 --- abstract
 
-This document describes JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE) serializations for PQ/T hybrid composite signatures. The composite algorithms described combine ML-DSA as the post-quantum component and ECDSA as the traditional component.
+This document describes JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE) serializations for PQ/T hybrid composite signatures. The composite algorithms described combine ML-DSA as the post-quantum component and with either ECDSA or EdDSA as the traditional component.
 
 --- middle
 
@@ -92,7 +99,7 @@ While switching from a traditional algorithm to a post-quantum one intends to st
 
 Thus, the joint use of a traditional algorithm and a post-quantum algorithm in protocols represents a solution to this problem by providing security as long as at least one of the traditional or post-quantum components remains secure.
 
-This document describes JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE) serializations for hybrid composite signatures. The composite algorithms described combine ML-DSA as the post-quantum component and ECDSA as the traditional component.
+This document describes JSON Object Signing and Encryption (JOSE) and CBOR Object Signing and Encryption (COSE) serializations for hybrid composite signatures. The composite algorithms described combine ML-DSA as the post-quantum component and with either ECDSA or EdDSA as the traditional component.
 
 
 # Conventions and Definitions
@@ -149,19 +156,31 @@ and
 Composite Private Key <- Private Key of the 1st Algorithm || Private Key of the 2nd Algorithm
 ```
 
-For the composite algorithms described in this document (ML-DSA with ECDSA), the Key Generation process is as follows:
+For the composite algorithms described in this document (ML-DSA with ECDSA or EdDSA), the Key Generation process is as follows:
 
 ~~~
-(pk_1, sk_1) <- ML-DSA.KeyGen()
-(pk_2 = (x,y), sk_2 = d) <- ECDSA.KeyGen()
+1. Generate component keys
 
-Composite Public Key <- SerializePublicKey(pk_1, pk_2)
-Composite Private Key <- SerializePrivateKey(sk_1, sk_2)
+    mldsaSeed = Random(32)
+    (mldsaPK, mldsaSK) = ML-DSA.KeyGen(mldsaSeed)
+
+    (tradPK, tradSK) = Trad.Sign.KeyGen()
+
+2. Check for component key generation failure
+
+    if NOT (mldsaPK, mldsaSK) or NOT (tradPK, tradSK):
+        output "Key generation error"
+
+3. Serialize keys into composite form
+
+    Composite Public Key  <- SerializePublicKey(mldsaPK, tradPK)
+    Composite Private Key <- SerializePrivateKey(mldsaSK, tradSK)
+
 ~~~
 
 This document makes use of the serialization routines from {{-COMPOSITE-LAMPS}} to obtain the byte string encodings of the composite public and private keys. These encodings are then directly use with the AKP Key Type. For more information, see the `SerializePublicKey`, `DeserializePublicKey`, `SerializePrivateKey` and `DeserializePrivateKey` algorithms from {{-COMPOSITE-LAMPS}}.
 
-Point compression for the ECDSA component is not performed for the AKP JSON Web Key Type but can be performed for the AKP COSE Key Type.
+Point compression for the ECDSA or EdDSA component is not performed for the AKP JSON Web Key Type but can be performed for the AKP COSE Key Type.
 
 In this document, as in {{-COSE-MLDSA}}, the ML-DSA private key MUST be a 32-bytes seed.
 
@@ -191,10 +210,10 @@ For the composite algorithms described in this document (ML-DSA with ECDSA), the
 M' <- Prefix || Domain || 0x00 || r || PH(M)
 M' <- Encode(M')
 
-sig_1 <- ML-DSA.Sign(sk_1, M', ctx=Domain)
-sig_2 <- ECDSA.Sign(sk_2, M')
+sig_1 <- ML-DSA.Sign(mldsaSK, M', ctx=Domain)
+sig_2 <- Trad.Sign(tradSK, M')
 
-Composite Signature <- SerializeSignatureValue(r, sig_1, sig_2)
+CompositeSignature <- SerializeSignatureValue(r, sig_1, sig_2)
 ~~~
 
 The serialization routines from {{-COMPOSITE-LAMPS}} are again used to obtain the byte string encoding of the composite signature. The `SerializeSignatureValue` routine simply concatenates the randomizer r, the fixed-length ML-DSA signature value and the signature value from the traditional algorithm. For more information, see the `SerializeSignatureValue` and `DeserializeSignatureValue` algorithms from {{-COMPOSITE-LAMPS}}.
@@ -222,15 +241,15 @@ The verification process of a signature sig is as follows:
 * verify each component signature.
 
 ~~~
-(pk_1, pk_2) <- DeserializePublicKey(pk)
+(mldsaPK, tradPK) <- DeserializePublicKey(pk)
 (r, sig_1, sig_2) <- DeserializeSignatureValue(sig)
 
 M' <- Prefix || Domain || 0x00 || r || PH(M)
 M' <- Encode(M')
 
-if not ML-DSA.Verify(pk_1, M', ctx=Domain)
+if NOT ML-DSA.Verify(mldsaPK, M', ctx=Domain)
     output "Invalid signature"
-if not ECDSA.Verify(pk_2, M')
+if NOT Trad.Verify(tradPK, M')
     output "Invalid signature"
 if all succeeded, then
     output "Valid signature"
@@ -276,6 +295,9 @@ The following table defines a list of algorithms associated with specific PQ/T c
 | ML-DSA-44-ES256 | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
 | ML-DSA-65-ES256  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
 | ML-DSA-87-ES384  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
+| ML-DSA-44-Ed25519 | ML-DSA-44  | Ed25519 | SHA512 | Composite Signature with ML-DSA-44 and Ed25519 |
+| ML-DSA-65-Ed25519 | ML-DSA-65  | Ed25519 | SHA512 | Composite Signature with ML-DSA-65 and Ed25519 |
+| ML-DSA-87-Ed448   | ML-DSA-87  | Ed448   | SHAKE256 | Composite Signature with ML-DSA-87 and Ed448   |
 {: #tab-jose-algs title="JOSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-jose}}.
@@ -290,6 +312,8 @@ The following table defines a list of algorithms associated with specific PQ/T c
 | ML-DSA-44-ES256         | TBD (request assignment -51) | ML-DSA-44  | ecdsa-with-SHA256 with secp256r1 | SHA256 | Composite Signature with ML-DSA-44 and ECDSA using P-256 curve and SHA256 |
 | ML-DSA-65-ES256            | TBD (request assignment -52)  | ML-DSA-65 | ecdsa-with-SHA256 with secp256r1 | SHA512 | Composite Signature with ML-DSA-65 and ECDSA using P-256 curve and SHA256 |
 | ML-DSA-87-ES384            | TBD (request assignment -53)  | ML-DSA-87 | ecdsa-with-SHA384 with secp384r1 | SHA512 | Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA384 |
+| ML-DSA-65-Ed25519         | TBD (request assignment -55) | ML-DSA-65  | Ed25519 | SHA512 | Composite Signature with ML-DSA-65 and Ed25519 |
+| ML-DSA-87-Ed448           | TBD (request assignment -56) | ML-DSA-87  | Ed448   | SHAKE256 | Composite Signature with ML-DSA-87 and Ed448 |
 {: #tab-cose-algs title="COSE Composite Signature Algorithms for ML-DSA"}
 
 Examples can be found in {{appdx-cose}}.
@@ -305,6 +329,9 @@ They are defined as the DER encoding of the OID of the specific composite algori
 | ML-DSA-44-ES256 | 060B6086480186FA6B50090103  |
 | ML-DSA-65-ES256  | 060B6086480186FA6B50090108 |
 | ML-DSA-87-ES384  | 060B6086480186FA6B5009010C |
+| ML-DSA-44-Ed25519         | 060B6086480186FA6B50090102         |
+| ML-DSA-65-Ed25519         | 060B6086480186FA6B5009010B         |
+| ML-DSA-87-Ed448           | 060B6086480186FA6B5009010E         |
 {: #tab-sig-alg-oids title="JOSE/COSE Composite Domain Separators"}
 
 # Security Considerations
@@ -314,6 +341,8 @@ The security considerations of {{RFC7515}}, {{RFC7517}}, {{RFC9053}} and {{FIPS.
 All security issues that are pertinent to any cryptographic application must be addressed by JWS/JWK agents. Protecting the user's private key and employing countermeasures to various attacks constitute a priority.
 
 For security properties and security issues related to the use of a hybrid signature scheme, the user can refer to {{-HYB-SIG-SPECTRUMS}}. For more information about hybrid composite signature schemes and the different hybrid combinations that appear in this document, the user can read {{-COMPOSITE-LAMPS}}.
+
+Ed25519 and Ed448 ensure SUF security, which may remain secure even if ML-DSA is broken, at least until CRQCs emerge.  Applications that prioritize SUF security may benefit from using them in composite with ML-DSA to mitigate risks if ML-DSA is eventually broken.
 
 In particular, to avoid key reuse, when generating a new composite key, the key generation functions for both component algorithms MUST be executed. Compliant parties MUST NOT use, import or export component keys that are used in other contexts, combinations, or by themselves as keys for standalone algorithm use.
 
@@ -354,6 +383,36 @@ They are represented following the registration template provided in {{RFC7518}}
 * Specification Document(s): n/a
 * Algorithm Analysis Documents(s): TBD
 
+### ML-DSA-44-Ed25519
+
+* Algorithm Name: ML-DSA-44-Ed25519
+* Algorithm Description: Composite Signature with ML-DSA-44 and Ed25519 using SHA-512
+* Algorithm Usage Location(s): alg
+* JOSE Implementation Requirements: Optional
+* Change Controller: IETF
+* Specification Document(s): n/a
+* Algorithm Analysis Document(s): TBD
+
+### ML-DSA-65-Ed25519
+
+* Algorithm Name: ML-DSA-65-Ed25519
+* Algorithm Description: Composite Signature with ML-DSA-65 and Ed25519 using SHA-512
+* Algorithm Usage Location(s): alg
+* JOSE Implementation Requirements: Optional
+* Change Controller: IETF
+* Specification Document(s): n/a
+* Algorithm Analysis Document(s): TBD
+
+### ML-DSA-87-Ed448
+
+* Algorithm Name: ML-DSA-87-Ed448
+* Algorithm Description: Composite Signature with ML-DSA-87 and Ed448 using SHAKE-256
+* Algorithm Usage Location(s): alg
+* JOSE Implementation Requirements: Optional
+* Change Controller: IETF
+* Specification Document(s): n/a
+* Algorithm Analysis Document(s): TBD
+
 ## COSE Algorithms
 
 The following values are requested to be added to the "COSE Algorithms" registry.
@@ -384,6 +443,36 @@ They are represented following the registration template provided in {{RFC9053}}
 * Name: ML-DSA-87-ES384
 * Value: TBD (request assignment -53)
 * Description: Composite Signature with ML-DSA-87 and ECDSA using P-384 curve and SHA-384
+* Capabilities: [kty]
+* Change Controller: IETF
+* Reference: n/a
+* Recommended: Yes
+
+### ML-DSA-44-Ed25519
+
+* Name: ML-DSA-44-Ed25519
+* Value: TBD (request assignment -54)
+* Description: Composite Signature with ML-DSA-44 and Ed25519 using SHA-512
+* Capabilities: [kty]
+* Change Controller: IETF
+* Reference: n/a
+* Recommended: Yes
+
+### ML-DSA-65-Ed25519
+
+* Name: ML-DSA-65-Ed25519
+* Value: TBD (request assignment -55)
+* Description: Composite Signature with ML-DSA-65 and Ed25519 using SHA-512
+* Capabilities: [kty]
+* Change Controller: IETF
+* Reference: n/a
+* Recommended: Yes
+
+### ML-DSA-87-Ed448
+
+* Name: ML-DSA-87-Ed448
+* Value: TBD (request assignment -56)
+* Description: Composite Signature with ML-DSA-87 and Ed448 using SHAKE-256
 * Capabilities: [kty]
 * Change Controller: IETF
 * Reference: n/a
