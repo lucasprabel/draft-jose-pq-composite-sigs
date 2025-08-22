@@ -5,12 +5,12 @@ title: "PQ/T Hybrid Composite Signatures for JOSE and COSE"
 abbrev: "JOSE/COSE Composite Signatures"
 category: std
 
-docname: draft-prabel-jose-pq-composite-sigs-03
+docname: draft-prabel-jose-pq-composite-sigs-04
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
 consensus: true
-v: 3
+v: 4
 area: Security
 workgroup: JOSE
 keyword:
